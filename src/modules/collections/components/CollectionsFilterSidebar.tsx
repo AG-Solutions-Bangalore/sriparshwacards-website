@@ -1,4 +1,7 @@
 interface CollectionsFilterSidebarProps {
+  cardTypes: string[];
+  occasions: string[];
+  categories: string[];
   selectedTypes: string[];
   selectedOccasions: string[];
   selectedTier: string | null;
@@ -9,6 +12,9 @@ interface CollectionsFilterSidebarProps {
 }
 
 export function CollectionsFilterSidebar({
+  cardTypes,
+  occasions,
+  categories,
   selectedTypes,
   selectedOccasions,
   selectedTier,
@@ -17,18 +23,6 @@ export function CollectionsFilterSidebar({
   onSelectTier,
   onResetFilters,
 }: CollectionsFilterSidebarProps) {
-  const weddingTypes = ["Christian", "Hindu", "Muslim", "General"];
-  const occasions = [
-    "Birthday",
-    "Brahmopadesham",
-    "Engagement",
-    "Holy Communion & Baptism",
-    "HouseWarming",
-    "Naming Ceremony",
-    "Wedding",
-  ];
-  const priceTiers = ["Budget", "Standard", "Premium", "Luxury", "Exclusive"];
-
   const hasActiveFilters =
     selectedTypes.length > 0 || selectedOccasions.length > 0 || selectedTier !== null;
 
@@ -50,85 +44,91 @@ export function CollectionsFilterSidebar({
       </div>
 
       {/* Wedding Type Filter Group */}
-      <div className="space-y-4">
-        <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
-          Wedding Type
-        </h3>
-        <div className="space-y-2.5 font-HelveticaNow text-sm text-on-surface">
-          {weddingTypes.map((type) => {
-            const isChecked = selectedTypes.includes(type);
-            return (
-              <label
-                key={type}
-                className="flex items-center gap-3 cursor-pointer group select-none"
-              >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => onToggleType(type)}
-                  className="accent-secondary dark:accent-primary border-outline-variant rounded-xs w-4 h-4 cursor-pointer"
-                />
-                <span className="group-hover:text-secondary dark:group-hover:text-primary transition-colors font-light">
-                  {type}
-                </span>
-              </label>
-            );
-          })}
+      {cardTypes.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
+            Wedding Type
+          </h3>
+          <div className="space-y-2.5 font-HelveticaNow text-sm text-on-surface">
+            {cardTypes.map((type) => {
+              const isChecked = selectedTypes.includes(type);
+              return (
+                <label
+                  key={type}
+                  className="flex items-center gap-3 cursor-pointer group select-none"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => onToggleType(type)}
+                    className="accent-secondary dark:accent-primary border-outline-variant rounded-xs w-4 h-4 cursor-pointer"
+                  />
+                  <span className="group-hover:text-secondary dark:group-hover:text-primary transition-colors font-light">
+                    {type}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Occasion Filter Group */}
-      <div className="space-y-4">
-        <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
-          Occasion
-        </h3>
-        <div className="space-y-2.5 font-HelveticaNow text-sm text-on-surface">
-          {occasions.map((occ) => {
-            const isChecked = selectedOccasions.includes(occ);
-            return (
-              <label
-                key={occ}
-                className="flex items-center gap-3 cursor-pointer group select-none"
-              >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => onToggleOccasion(occ)}
-                  className="accent-secondary dark:accent-primary border-outline-variant rounded-xs w-4 h-4 cursor-pointer"
-                />
-                <span className="group-hover:text-secondary dark:group-hover:text-primary transition-colors font-light text-xs sm:text-sm">
-                  {occ}
-                </span>
-              </label>
-            );
-          })}
+      {occasions.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
+            Occasion
+          </h3>
+          <div className="space-y-2.5 font-HelveticaNow text-sm text-on-surface">
+            {occasions.map((occ) => {
+              const isChecked = selectedOccasions.includes(occ);
+              return (
+                <label
+                  key={occ}
+                  className="flex items-center gap-3 cursor-pointer group select-none"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => onToggleOccasion(occ)}
+                    className="accent-secondary dark:accent-primary border-outline-variant rounded-xs w-4 h-4 cursor-pointer"
+                  />
+                  <span className="group-hover:text-secondary dark:group-hover:text-primary transition-colors font-light text-xs sm:text-sm">
+                    {occ}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Category Tiers Filter Group */}
-      <div className="space-y-4">
-        <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
-          Category Tiers
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {priceTiers.map((tier) => {
-            const isSelected = selectedTier === tier;
-            return (
-              <button
-                key={tier}
-                onClick={() => onSelectTier(isSelected ? null : tier)}
-                className={`px-3 py-1.5 border text-xs font-HelveticaNow uppercase tracking-wider transition-colors cursor-pointer rounded-xs ${
-                  isSelected
-                    ? "border-secondary text-secondary bg-secondary/10 dark:border-primary dark:text-primary dark:bg-primary/10 font-bold"
-                    : "border-outline-variant/30 text-on-surface-variant hover:border-secondary hover:text-secondary dark:hover:border-primary dark:hover:text-primary"
-                }`}
-              >
-                {tier}
-              </button>
-            );
-          })}
+      {categories.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
+            Category Tiers
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((tier) => {
+              const isSelected = selectedTier === tier;
+              return (
+                <button
+                  key={tier}
+                  onClick={() => onSelectTier(isSelected ? null : tier)}
+                  className={`px-3 py-1.5 border text-xs font-HelveticaNow uppercase tracking-wider transition-colors cursor-pointer rounded-xs ${
+                    isSelected
+                      ? "border-secondary text-secondary bg-secondary/10 dark:border-primary dark:text-primary dark:bg-primary/10 font-bold"
+                      : "border-outline-variant/30 text-on-surface-variant hover:border-secondary hover:text-secondary dark:hover:border-primary dark:hover:text-primary"
+                  }`}
+                >
+                  {tier}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

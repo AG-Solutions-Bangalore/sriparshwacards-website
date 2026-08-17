@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { COMPANY_INFO } from "../../constants";
+import { useCompanyProfile } from "../../modules/home/hooks";
 
 interface FlipFooterLinkProps {
   to: string;
@@ -48,13 +49,18 @@ function FlipFooterAnchor({ href, children }: { href: string; children: string }
 }
 
 export function Footer() {
+  const { company } = useCompanyProfile();
+  const companyName = company?.company_name || COMPANY_INFO.name;
+  const companyEmail = company?.company_support_email || company?.company_email || COMPANY_INFO.contact.email;
+  const companyWebsite = company?.company_website || COMPANY_INFO.social.share;
+
   return (
     <footer className="bg-surface-container-low font-HelveticaNow dark:bg-surface-container-lowest w-full py-24 border-t border-outline-variant/10">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-6 md:px-16 max-w-[1280px] mx-auto">
         {/* Brand Column */}
         <div className="col-span-1">
           <h2 className=" text-2xl text-primary mb-6 font-semibold uppercase">
-            {COMPANY_INFO.brandName}
+            {companyName}
           </h2>
           <p className="text-sm text-on-surface-variant mb-6 pr-4 leading-relaxed font-light">
             {COMPANY_INFO.subTagline}
@@ -62,7 +68,7 @@ export function Footer() {
           <div className="flex gap-4">
             <a
               className="text-on-surface-variant hover:text-primary transition-colors p-1"
-              href={COMPANY_INFO.social.share}
+              href={companyWebsite}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Website Link"
@@ -71,7 +77,7 @@ export function Footer() {
             </a>
             <a
               className="text-on-surface-variant hover:text-primary transition-colors p-1"
-              href={`mailto:${COMPANY_INFO.contact.email}`}
+              href={`mailto:${companyEmail}`}
               aria-label="Email Us"
             >
               <span className="material-symbols-outlined text-[20px]">mail</span>

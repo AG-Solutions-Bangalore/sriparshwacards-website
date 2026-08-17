@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { COMPANY_INFO } from "../../constants";
+import { useCompanyProfile } from "../../modules/home/hooks";
 
 interface FlipNavLinkProps {
   to: string;
@@ -37,9 +38,12 @@ function FlipNavLink({ to, children, onClick }: FlipNavLinkProps) {
 }
 
 export function Header() {
+  const { company, logoUrl } = useCompanyProfile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const companyName = company?.company_name || COMPANY_INFO.name;
 
   useEffect(() => {
     if (searchOpen) {
@@ -54,10 +58,17 @@ export function Header() {
       <nav className="flex justify-between items-center px-4 sm:px-6 lg:px-12 py-3.5 max-w-[1440px] mx-auto w-full gap-4 lg:gap-8">
         {/* Brand Logo */}
         <Link
-          className="flex items-center font-serif text-xl sm:text-2xl lg:text-3xl tracking-tighter text-primary uppercase font-bold hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
+          className="flex items-center gap-2 font-serif text-xl sm:text-2xl lg:text-3xl tracking-tighter text-primary uppercase font-bold hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
           to="/"
         >
-          <span>{COMPANY_INFO.name}</span>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={companyName}
+              className="h-8 md:h-10 w-auto object-contain"
+            />
+          ) : null}
+          <span>{companyName}</span>
         </Link>
 
         {/* Desktop Navigation Links */}

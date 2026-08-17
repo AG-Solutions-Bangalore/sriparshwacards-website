@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "../components/layouts/MainLayout";
+import { ScrollToTop } from "../components/common/ScrollToTop";
 import { HomePage } from "../modules/home";
 import { CollectionsPage } from "../modules/collections";
 import { EnquiryPage } from "../modules/enquiry";
@@ -8,6 +9,7 @@ import { NotFoundPage } from "../components/common/NotFoundPage";
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
@@ -22,3 +24,4 @@ export function AppRoutes() {
     </BrowserRouter>
   );
 }
+
