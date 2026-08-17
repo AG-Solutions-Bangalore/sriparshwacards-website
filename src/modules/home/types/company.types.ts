@@ -9,6 +9,7 @@ export interface Company {
   company_pan_no: string | null;
   company_mobile_no: string | null;
   company_address: string | null;
+  company_address_map_url: string | null;
   company_website: string;
   company_logo: string;
   company_banner: string | null;

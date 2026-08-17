@@ -28,15 +28,6 @@ export function ThemeToggle() {
         </span>
       ),
     },
-    {
-      value: "system",
-      label: "System",
-      icon: (
-        <span className="material-symbols-outlined text-[14px]">
-          desktop_windows
-        </span>
-      ),
-    },
   ];
 
   if (!mounted) {

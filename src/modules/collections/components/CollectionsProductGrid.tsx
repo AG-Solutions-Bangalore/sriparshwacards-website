@@ -1,15 +1,114 @@
-import { COMPANY_INFO } from "../../../constants";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { ProductWithImage } from "../types";
+import { ProductGalleryModal } from "../../../components/common/ProductGalleryModal";
 
 interface CollectionsProductGridProps {
   products: ProductWithImage[];
   isLoading?: boolean;
 }
 
+function CollectionItemCard({
+  product,
+  onSelect,
+}: {
+  product: ProductWithImage;
+  onSelect: (product: ProductWithImage) => void;
+}) {
+  const [imageError, setImageError] = useState(false);
+  const images = product.imageUrls?.length ? product.imageUrls : product.imageUrl ? [product.imageUrl] : [];
+
+  return (
+    <article className="group flex flex-col justify-between bg-surface-container-lowest/50 dark:bg-surface-container-low/40 p-4 rounded-sm border border-outline-variant/15 dark:border-outline-variant/20 hover:border-primary/40 dark:hover:border-primary/50 transition-all duration-300 shadow-2xs hover:shadow-md relative">
+      <div>
+        {/* Multi-image count badge */}
+        {images.length > 1 && !imageError && (
+          <div className="absolute top-6 right-6 z-10 bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-[10px] font-label font-medium flex items-center gap-1 shadow-sm">
+            <span className="material-symbols-outlined text-[12px]">photo_library</span>
+            <span>{images.length}</span>
+          </div>
+        )}
+
+        {/* Compact Image Container with Zoom & Click to Open Lightbox */}
+        <div
+          onClick={() => onSelect(product)}
+          className="aspect-[4/4.5] bg-surface-container-low dark:bg-surface-container-low mb-4 overflow-hidden relative rounded-xs border border-outline-variant/10 shadow-xs cursor-pointer group/img"
+        >
+          {product.imageUrl && !imageError ? (
+            <img
+              className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105"
+              alt={product.product_name}
+              src={product.imageUrl}
+              onError={() => setImageError(true)}
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant/40 bg-surface-container-lowest/60 p-4 text-center">
+              <span className="material-symbols-outlined text-[36px] mb-1">
+                image_not_supported
+              </span>
+              <span className="font-label text-xs uppercase tracking-wider font-semibold">
+                No Image
+              </span>
+            </div>
+          )}
+
+          {/* Hover Quick View Overlay */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <span className="bg-surface/90 dark:bg-surface-container-high/90 text-on-surface px-3 py-1.5 rounded-full text-xs font-label uppercase tracking-wider font-semibold shadow-md flex items-center gap-1.5 transform translate-y-2 group-hover/img:translate-y-0 transition-transform duration-300">
+              <span className="material-symbols-outlined text-[16px]">visibility</span>
+              <span>View Gallery</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Content Details */}
+        <div className="flex flex-col items-start space-y-1">
+          <span className="font-HelveticaNow text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">
+            {product.product_made_of || "Wedding Card"}
+          </span>
+          <h3
+            onClick={() => onSelect(product)}
+            className="font-HelveticaNow text-lg text-primary dark:text-on-surface font-medium line-clamp-1 cursor-pointer hover:text-primary transition-colors"
+          >
+            {product.product_name}
+          </h3>
+          <p className="font-NeuMachina text-xs text-secondary dark:text-primary font-semibold">
+            {product.category_names || "Custom Suite"}
+          </p>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="pt-3 flex justify-between items-center border-t border-outline-variant/10 dark:border-outline-variant/20 mt-4">
+        <button
+          onClick={() => onSelect(product)}
+          className="font-HelveticaNow text-[11px] uppercase text-primary dark:text-on-surface hover:text-secondary dark:hover:text-primary transition-colors font-semibold tracking-wider border-b border-primary dark:border-on-surface cursor-pointer"
+        >
+          View Details
+        </button>
+
+        <Link
+          to={`/contact?product=${encodeURIComponent(product.product_name)}`}
+          className="inline-flex items-center gap-1 text-[11px] font-HelveticaNow font-bold uppercase tracking-wider text-primary dark:text-on-surface hover:text-secondary dark:hover:text-primary transition-colors py-1 px-1.5 rounded-xs hover:bg-surface-container-high/60 group/btn cursor-pointer"
+          aria-label={`Enquire about ${product.product_name}`}
+        >
+          <span>Enquire</span>
+          <span className="material-symbols-outlined text-[16px] inline-block transition-transform duration-300 group-hover/btn:translate-x-0.5">
+            arrow_forward
+          </span>
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 export function CollectionsProductGrid({
   products,
   isLoading = false,
 }: CollectionsProductGridProps) {
+  const [selectedProduct, setSelectedProduct] = useState<ProductWithImage | null>(null);
+
   if (isLoading) {
     return (
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
@@ -44,81 +143,24 @@ export function CollectionsProductGrid({
   }
 
   return (
-    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
-      {products.map((product) => (
-        <article
-          key={product.id}
-          className="group flex flex-col justify-between bg-surface-container-lowest/50 dark:bg-surface-container-low/40 p-4 rounded-sm border border-outline-variant/15 dark:border-outline-variant/20 hover:border-primary/40 dark:hover:border-primary/50 transition-all duration-300 shadow-2xs hover:shadow-md"
-        >
-          <div>
-            {/* Compact Image Container with Zoom */}
-            <div className="aspect-[4/4.5] bg-surface-container-low dark:bg-surface-container-low mb-4 overflow-hidden relative rounded-xs border border-outline-variant/10 shadow-xs">
-              {product.imageUrl ? (
-                <img
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  alt={product.product_name}
-                  src={product.imageUrl}
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[40px] text-on-surface-variant/30">
-                    image_not_supported
-                  </span>
-                </div>
-              )}
-            </div>
+    <>
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
+        {products.map((product) => (
+          <CollectionItemCard
+            key={product.id}
+            product={product}
+            onSelect={setSelectedProduct}
+          />
+        ))}
+      </div>
 
-            {/* Content Details */}
-            <div className="flex flex-col items-start space-y-1">
-              <span className="font-HelveticaNow text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">
-                {product.product_made_of || "Wedding Card"}
-              </span>
-              <h3 className="font-HelveticaNow text-lg text-primary dark:text-on-surface font-medium line-clamp-1">
-                {product.product_name}
-              </h3>
-              <p className="font-NeuMachina text-xs text-secondary dark:text-primary font-semibold">
-                {product.category_names || "Custom Quote"}
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="pt-3 flex justify-between items-center border-t border-outline-variant/10 dark:border-outline-variant/20 mt-4">
-            <a
-              href={`${COMPANY_INFO.contact.whatsappUrl}&text=Hello%20Sri%20Parshwa%20Cards%2C%20I%20am%20interested%20in%20${encodeURIComponent(
-                product.product_name
-              )}.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group/cta relative inline-flex flex-col font-HelveticaNow text-[11px] uppercase text-primary dark:text-on-surface hover:text-secondary dark:hover:text-primary transition-colors font-semibold tracking-wider"
-            >
-              <span className="relative inline-block overflow-hidden h-[16px] leading-[16px] whitespace-nowrap border-b border-primary dark:border-on-surface">
-                <span className="block transition-transform duration-300 ease-out group-hover:-translate-y-full group-hover/cta:-translate-y-full whitespace-nowrap">
-                  View Invitation
-                </span>
-                <span className="block absolute top-0 left-0 transition-transform duration-300 ease-out translate-y-full group-hover:translate-y-0 group-hover/cta:translate-y-0 text-secondary dark:text-primary font-bold whitespace-nowrap">
-                  View Invitation
-                </span>
-              </span>
-            </a>
-
-            <a
-              href={`${COMPANY_INFO.contact.whatsappUrl}&text=Hello%20Sri%20Parshwa%20Cards%2C%20I%20am%20interested%20in%20${encodeURIComponent(
-                product.product_name
-              )}.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary dark:text-on-surface hover:text-secondary dark:hover:text-primary transition-colors p-1"
-              aria-label={`Enquire about ${product.product_name}`}
-            >
-              <span className="material-symbols-outlined text-[18px] inline-block transition-transform duration-300 group-hover:-rotate-[35deg]">
-                arrow_forward
-              </span>
-            </a>
-          </div>
-        </article>
-      ))}
-    </div>
+      {/* Product Gallery Modal */}
+      {selectedProduct && (
+        <ProductGalleryModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
+    </>
   );
 }

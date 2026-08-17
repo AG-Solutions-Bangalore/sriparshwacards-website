@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { COMPANY_INFO } from "../../../constants";
 import { useCreateEnquiry } from "../hooks";
 import { useActiveOccasions } from "../../collections/hooks";
 import { DatePicker } from "../../../components/ui/date-picker";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../../components/ui/popover";
 import type { CreateEnquiryPayload } from "../types";
 
-const FALLBACK_OCCASIONS = ["Wedding", "Engagement", "Birthday", "Other"];
-
 export function EnquiryHeroForm() {
+  const [searchParams] = useSearchParams();
+  const productParam = searchParams.get("product");
+
   const { mutate, isPending, isError, error, isSuccess, reset } = useCreateEnquiry();
   const { data: occasionsData, isLoading: isLoadingOccasions } = useActiveOccasions();
 
@@ -23,16 +23,30 @@ export function EnquiryHeroForm() {
     email: "",
     phone: "",
     date: "",
-    occasion: "",
-    service: "",
-    message: "",
+    message: productParam ? `I am interested in inquiring about "${productParam}".` : "",
   });
 
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [occasionOpen, setOccasionOpen] = useState(false);
 
-  const occasions = occasionsData?.data.length
-    ? occasionsData.data.map((occasion) => occasion.occasions)
-    : FALLBACK_OCCASIONS;
+  useEffect(() => {
+    if (productParam) {
+      setForm((prev) => ({
+        ...prev,
+        message: prev.message || `I am interested in inquiring about "${productParam}".`,
+      }));
+    }
+  }, [productParam]);
+
+  // Live dynamic occasions list from API
+  const occasions = occasionsData?.data ?? [];
+
+  const toggleOccasion = (name: string) => {
+    setSelectedOccasions((prev) =>
+      prev.includes(name) ? prev.filter((item) => item !== name) : [...prev, name],
+    );
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -91,11 +105,9 @@ export function EnquiryHeroForm() {
       enquiryFullName: form.fullName.trim(),
       enquiryMobile: cleanedPhone,
       enquiryEmail: form.email.trim(),
-      enquiryOccassion: form.occasion || "Wedding",
+      enquiryOccassion: selectedOccasions.length > 0 ? selectedOccasions.join(", ") : "Wedding",
       enquiryWeddingDate: form.date || undefined,
-      enquiryMessage: form.service
-        ? `${form.message.trim()}\n\nPreferred Service: ${form.service}`.trim()
-        : form.message.trim() || undefined,
+      enquiryMessage: form.message.trim() || undefined,
     };
 
     mutate(payload);
@@ -104,7 +116,8 @@ export function EnquiryHeroForm() {
   const handleSuccessDismiss = () => {
     reset();
     setPhoneError(null);
-    setForm({ fullName: "", email: "", phone: "", date: "", occasion: "", service: "", message: "" });
+    setSelectedOccasions([]);
+    setForm({ fullName: "", email: "", phone: "", date: "", message: "" });
   };
 
   return (
@@ -220,78 +233,78 @@ export function EnquiryHeroForm() {
                 )}
               </div>
 
-              {/* Shadcn Luxury DatePicker for Wedding Date - Future Dates Only */}
-              <div className="relative group">
-                <label className="absolute left-0 -top-4 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold">
-                  Event / Wedding Date (Future Only)
+              {/* Multi-Select Occasion Dropdown from API */}
+              <div className="relative group pt-1">
+                <label
+                  className="absolute left-0 -top-3 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
+                >
+                  Occasion (Multi-Select)
                 </label>
-                <DatePicker
-                  date={form.date}
-                  disablePastDates={true}
-                  onDateChange={(d) => setForm((prev) => ({ ...prev, date: d }))}
-                  placeholder="Select Future Date"
-                />
+                <Popover open={occasionOpen} onOpenChange={setOccasionOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-11 w-full items-center justify-between border-b border-outline-variant/40 dark:border-outline-variant/30 bg-transparent px-0 py-2 text-sm font-serif text-primary dark:text-on-surface hover:border-primary dark:hover:border-primary transition-colors cursor-pointer text-left focus:outline-none"
+                    >
+                      <span className="truncate">
+                        {isLoadingOccasions ? (
+                          "Loading occasions..."
+                        ) : selectedOccasions.length > 0 ? (
+                          <span className="font-semibold text-primary dark:text-primary">
+                            {selectedOccasions.join(", ")}
+                          </span>
+                        ) : (
+                          <span className="text-on-surface-variant/60 font-sans text-sm">
+                            Select Occasions...
+                          </span>
+                        )}
+                      </span>
+                      <span className="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0">
+                        arrow_drop_down
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="w-64 p-2 bg-surface-container-high dark:bg-surface-container-high border border-outline-variant/30 shadow-xl rounded-sm z-[110]"
+                  >
+                    <div className="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
+                      {occasions.map((occ) => {
+                        const isChecked = selectedOccasions.includes(occ.occasions);
+                        return (
+                          <label
+                            key={occ.id}
+                            className="flex items-center gap-2.5 px-3 py-2 text-xs font-HelveticaNow text-on-surface hover:bg-surface/80 rounded-xs cursor-pointer select-none transition-colors"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => toggleOccasion(occ.occasions)}
+                              className="accent-primary w-4 h-4 rounded-xs cursor-pointer"
+                            />
+                            <span className={isChecked ? "font-bold text-primary" : "font-normal"}>
+                              {occ.occasions}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Shadcn Occasion Select */}
-              <div className="relative group pt-1">
-                <label
-                  htmlFor="occasion"
-                  className="absolute left-0 -top-3 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
-                >
-                  Occasion
-                </label>
-                <Select
-                  value={form.occasion}
-                  onValueChange={(val) => setForm((prev) => ({ ...prev, occasion: val }))}
-                >
-                  <SelectTrigger id="occasion">
-                    <SelectValue
-                      placeholder={
-                        isLoadingOccasions ? "Loading occasions..." : "Select Occasion"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {occasions.map((occasion) => (
-                      <SelectItem key={occasion} value={occasion}>
-                        {occasion}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Shadcn Preferred Service Select */}
-              <div className="relative group pt-1">
-                <label
-                  htmlFor="service"
-                  className="absolute left-0 -top-3 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
-                >
-                  Preferred Service
-                </label>
-                <Select
-                  value={form.service}
-                  onValueChange={(val) => setForm((prev) => ({ ...prev, service: val }))}
-                >
-                  <SelectTrigger id="service">
-                    <SelectValue placeholder="Select Service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="semi-custom">
-                      Semi-Custom Collection
-                    </SelectItem>
-                    <SelectItem value="bespoke">
-                      Bespoke Custom Suite
-                    </SelectItem>
-                    <SelectItem value="unsure">
-                      Not Sure Yet (Consultation Needed)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Shadcn Luxury DatePicker for Wedding Date - Future Dates Only */}
+            <div className="relative group">
+              <label className="absolute left-0 -top-4 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold">
+                Event / Wedding Date (Future Only)
+              </label>
+              <DatePicker
+                date={form.date}
+                disablePastDates={true}
+                onDateChange={(d) => setForm((prev) => ({ ...prev, date: d }))}
+                placeholder="Select Future Date"
+              />
             </div>
 
             {/* Message Area */}
@@ -306,24 +319,24 @@ export function EnquiryHeroForm() {
               ></textarea>
               <label
                 htmlFor="message"
-                className="absolute left-0 top-0 font-label text-xs uppercase tracking-wider text-on-surface-variant transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:text-on-surface-variant/60 peer-focus:top-0 peer-focus:text-xs peer-focus:text-primary dark:peer-focus:text-primary pointer-events-none font-semibold"
+                className="absolute left-0 -top-1 font-label text-xs uppercase tracking-wider text-on-surface-variant transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-5 peer-placeholder-shown:text-on-surface-variant/60 peer-focus:-top-1 peer-focus:text-xs peer-focus:text-primary dark:peer-focus:text-primary pointer-events-none font-semibold"
               >
-                Tell us about your vision (venue, aesthetic, colors)
+                Special Requirements / Message
               </label>
             </div>
 
-            {/* Error Message */}
+            {/* Error Banner */}
             {isError && (
-              <div className="flex items-center gap-3 p-4 bg-error-container/40 border border-error/30 rounded-sm text-sm">
-                <span className="material-symbols-outlined text-error text-[20px]">error</span>
-                <p className="font-body text-error font-light">
-                  {error?.message ?? "Something went wrong while submitting your enquiry. Please try again."}
-                </p>
+              <div className="p-4 bg-error/10 border border-error/20 rounded-xs text-error font-body text-xs flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px]">error</span>
+                <span>
+                  {error?.message ?? "An error occurred while submitting your enquiry. Please try again."}
+                </span>
               </div>
             )}
 
-            {/* Submit & WhatsApp Buttons */}
-            <div className="pt-6 flex flex-col sm:flex-row gap-4 items-center">
+            {/* Actions */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-6">
               {/* Submit Button with Text Flip */}
               <button
                 type="submit"
@@ -348,19 +361,6 @@ export function EnquiryHeroForm() {
                   )}
                 </span>
               </button>
-
-              {/* Direct WhatsApp Link */}
-              <a
-                className="inline-flex items-center gap-2 text-on-surface-variant hover:text-secondary dark:hover:text-primary transition-colors font-label text-xs uppercase tracking-widest font-semibold p-2"
-                href={COMPANY_INFO.contact.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="material-symbols-outlined text-[20px] text-[#25D366]">
-                  chat
-                </span>
-                <span>WhatsApp Us Instead</span>
-              </a>
             </div>
           </form>
         )}

@@ -1,13 +1,15 @@
+import type { FilterOption } from "../types";
+
 interface CollectionsFilterSidebarProps {
-  cardTypes: string[];
-  occasions: string[];
-  categories: string[];
-  selectedTypes: string[];
-  selectedOccasions: string[];
-  selectedTier: string | null;
-  onToggleType: (type: string) => void;
-  onToggleOccasion: (occasion: string) => void;
-  onSelectTier: (tier: string | null) => void;
+  cardTypes: FilterOption[];
+  occasions: FilterOption[];
+  categories: FilterOption[];
+  selectedTypeIds: number[];
+  selectedOccasionIds: number[];
+  selectedCategoryIds: number[];
+  onToggleTypeId: (id: number) => void;
+  onToggleOccasionId: (id: number) => void;
+  onToggleCategoryId: (id: number) => void;
   onResetFilters: () => void;
 }
 
@@ -15,16 +17,18 @@ export function CollectionsFilterSidebar({
   cardTypes,
   occasions,
   categories,
-  selectedTypes,
-  selectedOccasions,
-  selectedTier,
-  onToggleType,
-  onToggleOccasion,
-  onSelectTier,
+  selectedTypeIds,
+  selectedOccasionIds,
+  selectedCategoryIds,
+  onToggleTypeId,
+  onToggleOccasionId,
+  onToggleCategoryId,
   onResetFilters,
 }: CollectionsFilterSidebarProps) {
   const hasActiveFilters =
-    selectedTypes.length > 0 || selectedOccasions.length > 0 || selectedTier !== null;
+    selectedTypeIds.length > 0 ||
+    selectedOccasionIds.length > 0 ||
+    selectedCategoryIds.length > 0;
 
   return (
     <aside className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24 self-start z-30 space-y-8 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar pr-2 py-1">
@@ -38,12 +42,12 @@ export function CollectionsFilterSidebar({
             onClick={onResetFilters}
             className="text-xs text-secondary dark:text-primary hover:underline cursor-pointer font-HelveticaNow uppercase tracking-wider font-semibold"
           >
-            Reset
+            Reset All
           </button>
         )}
       </div>
 
-      {/* Wedding Type Filter Group */}
+      {/* Wedding Type Filter Group (by ID) */}
       {cardTypes.length > 0 && (
         <div className="space-y-4">
           <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
@@ -51,20 +55,20 @@ export function CollectionsFilterSidebar({
           </h3>
           <div className="space-y-2.5 font-HelveticaNow text-sm text-on-surface">
             {cardTypes.map((type) => {
-              const isChecked = selectedTypes.includes(type);
+              const isChecked = selectedTypeIds.includes(type.id);
               return (
                 <label
-                  key={type}
+                  key={type.id}
                   className="flex items-center gap-3 cursor-pointer group select-none"
                 >
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => onToggleType(type)}
+                    onChange={() => onToggleTypeId(type.id)}
                     className="accent-secondary dark:accent-primary border-outline-variant rounded-xs w-4 h-4 cursor-pointer"
                   />
                   <span className="group-hover:text-secondary dark:group-hover:text-primary transition-colors font-light">
-                    {type}
+                    {type.label}
                   </span>
                 </label>
               );
@@ -73,7 +77,7 @@ export function CollectionsFilterSidebar({
         </div>
       )}
 
-      {/* Occasion Filter Group */}
+      {/* Occasion Filter Group (by ID) */}
       {occasions.length > 0 && (
         <div className="space-y-4">
           <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
@@ -81,20 +85,20 @@ export function CollectionsFilterSidebar({
           </h3>
           <div className="space-y-2.5 font-HelveticaNow text-sm text-on-surface">
             {occasions.map((occ) => {
-              const isChecked = selectedOccasions.includes(occ);
+              const isChecked = selectedOccasionIds.includes(occ.id);
               return (
                 <label
-                  key={occ}
+                  key={occ.id}
                   className="flex items-center gap-3 cursor-pointer group select-none"
                 >
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => onToggleOccasion(occ)}
+                    onChange={() => onToggleOccasionId(occ.id)}
                     className="accent-secondary dark:accent-primary border-outline-variant rounded-xs w-4 h-4 cursor-pointer"
                   />
                   <span className="group-hover:text-secondary dark:group-hover:text-primary transition-colors font-light text-xs sm:text-sm">
-                    {occ}
+                    {occ.label}
                   </span>
                 </label>
               );
@@ -103,26 +107,37 @@ export function CollectionsFilterSidebar({
         </div>
       )}
 
-      {/* Category Tiers Filter Group */}
+      {/* Category Tiers Multi-Select Filter Group (by ID) */}
       {categories.length > 0 && (
         <div className="space-y-4">
-          <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
-            Category Tiers
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3 className="font-HelveticaNow text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
+              Category Tiers
+            </h3>
+            {selectedCategoryIds.length > 0 && (
+              <span className="text-[10px] font-label text-secondary dark:text-primary font-semibold uppercase">
+                {selectedCategoryIds.length} selected
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2">
             {categories.map((tier) => {
-              const isSelected = selectedTier === tier;
+              const isSelected = selectedCategoryIds.includes(tier.id);
               return (
                 <button
-                  key={tier}
-                  onClick={() => onSelectTier(isSelected ? null : tier)}
-                  className={`px-3 py-1.5 border text-xs font-HelveticaNow uppercase tracking-wider transition-colors cursor-pointer rounded-xs ${
+                  key={tier.id}
+                  type="button"
+                  onClick={() => onToggleCategoryId(tier.id)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 border text-xs font-HelveticaNow uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-xs ${
                     isSelected
-                      ? "border-secondary text-secondary bg-secondary/10 dark:border-primary dark:text-primary dark:bg-primary/10 font-bold"
+                      ? "border-secondary text-secondary bg-secondary/10 dark:border-primary dark:text-primary dark:bg-primary/10 font-bold shadow-xs scale-[1.02]"
                       : "border-outline-variant/30 text-on-surface-variant hover:border-secondary hover:text-secondary dark:hover:border-primary dark:hover:text-primary"
                   }`}
                 >
-                  {tier}
+                  {isSelected && (
+                    <span className="material-symbols-outlined text-[14px]">check</span>
+                  )}
+                  <span>{tier.label}</span>
                 </button>
               );
             })}
