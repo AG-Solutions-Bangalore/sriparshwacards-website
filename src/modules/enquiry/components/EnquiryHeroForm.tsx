@@ -1,13 +1,110 @@
 import { useState } from "react";
 import { COMPANY_INFO } from "../../../constants";
+import { useCreateEnquiry } from "../hooks";
+import { useActiveOccasions } from "../../collections/hooks";
+import { DatePicker } from "../../../components/ui/date-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select";
+import type { CreateEnquiryPayload } from "../types";
+
+const FALLBACK_OCCASIONS = ["Wedding", "Engagement", "Birthday", "Other"];
 
 export function EnquiryHeroForm() {
-  const [submitted, setSubmitted] = useState(false);
+  const { mutate, isPending, isError, error, isSuccess, reset } = useCreateEnquiry();
+  const { data: occasionsData, isLoading: isLoadingOccasions } = useActiveOccasions();
+
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    date: "",
+    occasion: "",
+    service: "",
+    message: "",
+  });
+
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const occasions = occasionsData?.data.length
+    ? occasionsData.data.map((occasion) => occasion.occasions)
+    : FALLBACK_OCCASIONS;
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { id, value } = e.target;
+    if (id === "phone") {
+      // Remove all non-digits
+      let digits = value.replace(/\D/g, "");
+      // Remove leading zeros (e.g. 09304922632 -> 9304922632)
+      digits = digits.replace(/^0+/, "");
+      // If user pasted with 91 country code (12 digits), strip 91
+      if (digits.startsWith("91") && digits.length > 10) {
+        digits = digits.slice(2);
+      }
+      // Cap at 10 digits
+      const cleaned = digits.slice(0, 10);
+      setForm((prev) => ({ ...prev, phone: cleaned }));
+
+      if (cleaned.length > 0 && cleaned.length < 10) {
+        setPhoneError("Please enter a 10-digit mobile number");
+      } else if (cleaned.length === 10 && !/^[6-9]\d{9}$/.test(cleaned)) {
+        setPhoneError("Mobile number must start with 6, 7, 8, or 9");
+      } else {
+        setPhoneError(null);
+      }
+      return;
+    }
+    setForm((prev) => ({ ...prev, [id]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+
+    let cleanedPhone = form.phone.replace(/\D/g, "").replace(/^0+/, "");
+    if (cleanedPhone.startsWith("91") && cleanedPhone.length > 10) {
+      cleanedPhone = cleanedPhone.slice(2);
+    }
+
+    if (!/^[6-9]\d{9}$/.test(cleanedPhone)) {
+      setPhoneError("Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9");
+      return;
+    }
+    setPhoneError(null);
+
+    // Validate future date if date is provided
+    if (form.date) {
+      const selected = new Date(form.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selected < today) {
+        return;
+      }
+    }
+
+    const payload: CreateEnquiryPayload = {
+      enquiryFullName: form.fullName.trim(),
+      enquiryMobile: cleanedPhone,
+      enquiryEmail: form.email.trim(),
+      enquiryOccassion: form.occasion || "Wedding",
+      enquiryWeddingDate: form.date || undefined,
+      enquiryMessage: form.service
+        ? `${form.message.trim()}\n\nPreferred Service: ${form.service}`.trim()
+        : form.message.trim() || undefined,
+    };
+
+    mutate(payload);
+  };
+
+  const handleSuccessDismiss = () => {
+    reset();
+    setPhoneError(null);
+    setForm({ fullName: "", email: "", phone: "", date: "", occasion: "", service: "", message: "" });
   };
 
   return (
@@ -36,7 +133,7 @@ export function EnquiryHeroForm() {
           </p>
         </div>
 
-        {submitted ? (
+        {isSuccess ? (
           <div className="p-8 bg-surface-container-low dark:bg-surface-container-low border border-secondary/30 dark:border-primary/40 rounded-sm text-center space-y-3">
             <span className="material-symbols-outlined text-[40px] text-secondary dark:text-primary">
               check_circle
@@ -47,6 +144,13 @@ export function EnquiryHeroForm() {
             <p className="font-body text-sm text-on-surface-variant font-light">
               Thank you for reaching out to {COMPANY_INFO.name}. Our senior design team will review your details and contact you within 24 business hours.
             </p>
+            <button
+              type="button"
+              onClick={handleSuccessDismiss}
+              className="mt-4 inline-flex items-center gap-2 text-secondary dark:text-primary hover:underline font-label text-xs uppercase tracking-widest font-semibold cursor-pointer"
+            >
+              Submit Another Enquiry
+            </button>
           </div>
         ) : (
           <form className="space-y-8" onSubmit={handleSubmit}>
@@ -57,6 +161,8 @@ export function EnquiryHeroForm() {
                   required
                   id="fullName"
                   type="text"
+                  value={form.fullName}
+                  onChange={handleChange}
                   placeholder="Full Name"
                   className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface placeholder-transparent peer focus:outline-none transition-colors"
                 />
@@ -74,6 +180,8 @@ export function EnquiryHeroForm() {
                   required
                   id="email"
                   type="email"
+                  value={form.email}
+                  onChange={handleChange}
                   placeholder="Email Address"
                   className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface placeholder-transparent peer focus:outline-none transition-colors"
                 />
@@ -93,97 +201,96 @@ export function EnquiryHeroForm() {
                   required
                   id="phone"
                   type="tel"
-                  placeholder="Phone Number"
+                  maxLength={15}
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="Phone Number (e.g. 9876543210)"
                   className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface placeholder-transparent peer focus:outline-none transition-colors"
                 />
                 <label
                   htmlFor="phone"
                   className="absolute left-0 -top-4 font-label text-xs uppercase tracking-wider text-on-surface-variant transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-on-surface-variant/60 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-primary dark:peer-focus:text-primary pointer-events-none font-semibold"
                 >
-                  Phone Number
+                  Mobile Number
                 </label>
+                {phoneError && (
+                  <p className="mt-1 text-[11px] text-error font-body font-normal">
+                    {phoneError}
+                  </p>
+                )}
               </div>
 
-              {/* Wedding Date */}
+              {/* Shadcn Luxury DatePicker for Wedding Date - Future Dates Only */}
               <div className="relative group">
-                <input
-                  id="date"
-                  type="date"
-                  className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface focus:outline-none transition-colors"
-                />
-                <label
-                  htmlFor="date"
-                  className="absolute left-0 -top-4 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
-                >
-                  Wedding Date
+                <label className="absolute left-0 -top-4 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold">
+                  Event / Wedding Date (Future Only)
                 </label>
+                <DatePicker
+                  date={form.date}
+                  disablePastDates={true}
+                  onDateChange={(d) => setForm((prev) => ({ ...prev, date: d }))}
+                  placeholder="Select Future Date"
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Occasion Dropdown */}
-              <div className="relative group pt-2">
-                <select
-                  id="occasion"
-                  defaultValue=""
-                  className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface appearance-none focus:outline-none transition-colors cursor-pointer"
-                >
-                  <option value="" disabled className="bg-surface dark:bg-surface-container-high text-on-surface-variant">
-                    Select Occasion
-                  </option>
-                  <option value="wedding" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Wedding Celebration
-                  </option>
-                  <option value="engagement" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Engagement Party
-                  </option>
-                  <option value="anniversary" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Milestone Anniversary
-                  </option>
-                  <option value="other" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Other Special Celebration
-                  </option>
-                </select>
+              {/* Shadcn Occasion Select */}
+              <div className="relative group pt-1">
                 <label
                   htmlFor="occasion"
-                  className="absolute left-0 -top-2 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
+                  className="absolute left-0 -top-3 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
                 >
                   Occasion
                 </label>
-                <span className="material-symbols-outlined absolute right-0 top-4 pointer-events-none text-on-surface-variant text-[20px]">
-                  expand_more
-                </span>
+                <Select
+                  value={form.occasion}
+                  onValueChange={(val) => setForm((prev) => ({ ...prev, occasion: val }))}
+                >
+                  <SelectTrigger id="occasion">
+                    <SelectValue
+                      placeholder={
+                        isLoadingOccasions ? "Loading occasions..." : "Select Occasion"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {occasions.map((occasion) => (
+                      <SelectItem key={occasion} value={occasion}>
+                        {occasion}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Preferred Service Dropdown */}
-              <div className="relative group pt-2">
-                <select
-                  id="service"
-                  defaultValue=""
-                  className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface appearance-none focus:outline-none transition-colors cursor-pointer"
-                >
-                  <option value="" disabled className="bg-surface dark:bg-surface-container-high text-on-surface-variant">
-                    Select Service
-                  </option>
-                  <option value="semi-custom" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Semi-Custom Collection
-                  </option>
-                  <option value="bespoke" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Bespoke Custom Suite
-                  </option>
-                  <option value="unsure" className="bg-surface dark:bg-surface-container-high text-on-surface">
-                    Not Sure Yet (Consultation Needed)
-                  </option>
-                </select>
+              {/* Shadcn Preferred Service Select */}
+              <div className="relative group pt-1">
                 <label
                   htmlFor="service"
-                  className="absolute left-0 -top-2 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
+                  className="absolute left-0 -top-3 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold"
                 >
                   Preferred Service
                 </label>
-                <span className="material-symbols-outlined absolute right-0 top-4 pointer-events-none text-on-surface-variant text-[20px]">
-                  expand_more
-                </span>
+                <Select
+                  value={form.service}
+                  onValueChange={(val) => setForm((prev) => ({ ...prev, service: val }))}
+                >
+                  <SelectTrigger id="service">
+                    <SelectValue placeholder="Select Service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="semi-custom">
+                      Semi-Custom Collection
+                    </SelectItem>
+                    <SelectItem value="bespoke">
+                      Bespoke Custom Suite
+                    </SelectItem>
+                    <SelectItem value="unsure">
+                      Not Sure Yet (Consultation Needed)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -192,6 +299,8 @@ export function EnquiryHeroForm() {
               <textarea
                 rows={3}
                 id="message"
+                value={form.message}
+                onChange={handleChange}
                 placeholder="Tell us about your vision"
                 className="w-full bg-transparent border-0 border-b border-outline-variant/40 dark:border-outline-variant/30 focus:border-primary dark:focus:border-primary focus:ring-0 px-0 py-2.5 font-body text-base text-primary dark:text-on-surface placeholder-transparent peer resize-none focus:outline-none transition-colors"
               ></textarea>
@@ -203,20 +312,40 @@ export function EnquiryHeroForm() {
               </label>
             </div>
 
+            {/* Error Message */}
+            {isError && (
+              <div className="flex items-center gap-3 p-4 bg-error-container/40 border border-error/30 rounded-sm text-sm">
+                <span className="material-symbols-outlined text-error text-[20px]">error</span>
+                <p className="font-body text-error font-light">
+                  {error?.message ?? "Something went wrong while submitting your enquiry. Please try again."}
+                </p>
+              </div>
+            )}
+
             {/* Submit & WhatsApp Buttons */}
             <div className="pt-6 flex flex-col sm:flex-row gap-4 items-center">
               {/* Submit Button with Text Flip */}
               <button
                 type="submit"
-                className="group/submit relative inline-flex justify-center items-center w-full sm:w-auto bg-primary text-on-primary dark:bg-primary-container dark:text-on-primary-container font-label text-xs uppercase tracking-widest px-8 py-4 hover:bg-secondary dark:hover:bg-primary transition-all duration-300 rounded-full font-semibold shadow-md cursor-pointer"
+                disabled={isPending}
+                className="group/submit relative inline-flex justify-center items-center w-full sm:w-auto bg-primary text-on-primary dark:bg-primary-container dark:text-on-primary-container font-label text-xs uppercase tracking-widest px-8 py-4 hover:bg-secondary dark:hover:bg-primary transition-all duration-300 rounded-full font-semibold shadow-md cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span className="relative inline-block overflow-hidden h-[18px] leading-[18px] whitespace-nowrap">
-                  <span className="block transition-transform duration-300 ease-out group-hover/submit:-translate-y-full whitespace-nowrap">
-                    Submit Enquiry
-                  </span>
-                  <span className="block absolute top-0 left-0 transition-transform duration-300 ease-out translate-y-full group-hover/submit:translate-y-0 text-on-secondary dark:text-on-primary font-bold whitespace-nowrap">
-                    Submit Enquiry
-                  </span>
+                  {isPending ? (
+                    <span className="flex items-center gap-2 whitespace-nowrap">
+                      <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    <>
+                      <span className="block transition-transform duration-300 ease-out group-hover/submit:-translate-y-full whitespace-nowrap">
+                        Submit Enquiry
+                      </span>
+                      <span className="block absolute top-0 left-0 transition-transform duration-300 ease-out translate-y-full group-hover/submit:translate-y-0 text-on-secondary dark:text-on-primary font-bold whitespace-nowrap">
+                        Submit Enquiry
+                      </span>
+                    </>
+                  )}
                 </span>
               </button>
 

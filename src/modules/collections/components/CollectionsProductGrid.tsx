@@ -1,11 +1,32 @@
 import { COMPANY_INFO } from "../../../constants";
-import type { ProductItem } from "../data/collectionsData";
+import type { ProductWithImage } from "../types";
 
 interface CollectionsProductGridProps {
-  products: ProductItem[];
+  products: ProductWithImage[];
+  isLoading?: boolean;
 }
 
-export function CollectionsProductGrid({ products }: CollectionsProductGridProps) {
+export function CollectionsProductGrid({
+  products,
+  isLoading = false,
+}: CollectionsProductGridProps) {
+  if (isLoading) {
+    return (
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex flex-col bg-surface-container-lowest/50 dark:bg-surface-container-low/40 p-4 rounded-sm border border-outline-variant/15 dark:border-outline-variant/20 animate-pulse"
+          >
+            <div className="aspect-[4/4.5] bg-surface-container-low dark:bg-surface-container-low mb-4 rounded-xs" />
+            <div className="h-3 w-2/3 bg-surface-container-high dark:bg-surface-container-low rounded-sm mb-2" />
+            <div className="h-4 w-3/4 bg-surface-container-high dark:bg-surface-container-low rounded-sm" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="flex-1 py-16 text-center space-y-4 bg-surface-container-low/50 dark:bg-surface-container-low/30 rounded-sm border border-outline-variant/10 dark:border-outline-variant/20">
@@ -32,23 +53,32 @@ export function CollectionsProductGrid({ products }: CollectionsProductGridProps
           <div>
             {/* Compact Image Container with Zoom */}
             <div className="aspect-[4/4.5] bg-surface-container-low dark:bg-surface-container-low mb-4 overflow-hidden relative rounded-xs border border-outline-variant/10 shadow-xs">
-              <img
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                alt={product.alt}
-                src={product.image}
-              />
+              {product.imageUrl ? (
+                <img
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  alt={product.product_name}
+                  src={product.imageUrl}
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[40px] text-on-surface-variant/30">
+                    image_not_supported
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Content Details */}
             <div className="flex flex-col items-start space-y-1">
               <span className="font-HelveticaNow text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">
-                {product.badge}
+                {product.product_made_of || "Wedding Card"}
               </span>
               <h3 className="font-HelveticaNow text-lg text-primary dark:text-on-surface font-medium line-clamp-1">
-                {product.title}
+                {product.product_name}
               </h3>
               <p className="font-NeuMachina text-xs text-secondary dark:text-primary font-semibold">
-                {product.price}
+                {product.category_names || "Custom Quote"}
               </p>
             </div>
           </div>
@@ -57,7 +87,7 @@ export function CollectionsProductGrid({ products }: CollectionsProductGridProps
           <div className="pt-3 flex justify-between items-center border-t border-outline-variant/10 dark:border-outline-variant/20 mt-4">
             <a
               href={`${COMPANY_INFO.contact.whatsappUrl}&text=Hello%20Sri%20Parshwa%20Cards%2C%20I%20am%20interested%20in%20${encodeURIComponent(
-                product.title
+                product.product_name
               )}.`}
               target="_blank"
               rel="noopener noreferrer"
@@ -75,12 +105,12 @@ export function CollectionsProductGrid({ products }: CollectionsProductGridProps
 
             <a
               href={`${COMPANY_INFO.contact.whatsappUrl}&text=Hello%20Sri%20Parshwa%20Cards%2C%20I%20am%20interested%20in%20${encodeURIComponent(
-                product.title
+                product.product_name
               )}.`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary dark:text-on-surface hover:text-secondary dark:hover:text-primary transition-colors p-1"
-              aria-label={`Enquire about ${product.title}`}
+              aria-label={`Enquire about ${product.product_name}`}
             >
               <span className="material-symbols-outlined text-[18px] inline-block transition-transform duration-300 group-hover:-rotate-[35deg]">
                 arrow_forward
