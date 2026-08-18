@@ -79,6 +79,16 @@ export function useActiveProductsWithImages() {
   };
 }
 
+/** Splits comma-separated ID strings returned by the API into integer ID arrays */
+export function splitIds(idStr: string | number | undefined | null): number[] {
+  if (idStr === undefined || idStr === null) return [];
+  if (typeof idStr === "number") return [idStr];
+  return String(idStr)
+    .split(",")
+    .map((s) => parseInt(s.trim(), 10))
+    .filter((n) => !isNaN(n));
+}
+
 /** Splits comma-separated strings returned by the API into trimmed lowercase arrays */
 export function splitNames(names: string | undefined | null): string[] {
   if (!names) return [];
@@ -88,7 +98,7 @@ export function splitNames(names: string | undefined | null): string[] {
     .filter(Boolean);
 }
 
-/** Pure filter/sort function for products based on multi-select criteria and search */
+/** Pure filter/sort function for products based on exact numerical ID matching */
 export function filterProducts(
   products: ProductWithImage[],
   filters: ProductFilters,
@@ -107,29 +117,24 @@ export function filterProducts(
         }
       }
 
-      // 2. Card Types multi-select
-      if (filters.cardTypes.length > 0) {
-        const types = splitNames(product.card_type_names);
-        const hasCardType = filters.cardTypes.some((t) => types.includes(t.toLowerCase()));
+      // 2. Card Types ID multi-select (Filter by ID)
+      if (filters.cardTypeIds && filters.cardTypeIds.length > 0) {
+        const productCardTypeIds = splitIds(product.card_types_ids);
+        const hasCardType = filters.cardTypeIds.some((id) => productCardTypeIds.includes(id));
         if (!hasCardType) return false;
       }
 
-      // 3. Occasions multi-select
-      if (filters.occasions.length > 0) {
-        const occs = splitNames(product.occasion_names);
-        const hasOccasion = filters.occasions.some((o) => occs.includes(o.toLowerCase()));
+      // 3. Occasions ID multi-select (Filter by ID)
+      if (filters.occasionIds && filters.occasionIds.length > 0) {
+        const productOccasionIds = splitIds(product.occasions_ids);
+        const hasOccasion = filters.occasionIds.some((id) => productOccasionIds.includes(id));
         if (!hasOccasion) return false;
       }
 
-      // 4. Categories multi-select & tier filter
-      if (filters.category) {
-        const cats = splitNames(product.category_names);
-        const hasCategory = cats.includes(filters.category.toLowerCase());
-        if (!hasCategory) return false;
-      }
-      if (filters.categories.length > 0) {
-        const cats = splitNames(product.category_names);
-        const hasCategory = filters.categories.some((c) => cats.includes(c.toLowerCase()));
+      // 4. Categories ID multi-select (Filter by ID)
+      if (filters.categoryIds && filters.categoryIds.length > 0) {
+        const productCategoryIds = splitIds(product.categories_ids);
+        const hasCategory = filters.categoryIds.some((id) => productCategoryIds.includes(id));
         if (!hasCategory) return false;
       }
 

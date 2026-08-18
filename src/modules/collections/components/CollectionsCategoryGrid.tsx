@@ -1,5 +1,5 @@
 interface CategoryCard {
-  id: string;
+  id: number;
   title: string;
   image: string | undefined;
   alt: string;
@@ -7,14 +7,14 @@ interface CategoryCard {
 
 interface CollectionsCategoryGridProps {
   categories: CategoryCard[];
-  selectedType: string | null;
-  onSelectType: (type: string | null) => void;
+  selectedTypeId: number | null;
+  onSelectTypeId: (typeId: number | null) => void;
 }
 
 export function CollectionsCategoryGrid({
   categories,
-  selectedType,
-  onSelectType,
+  selectedTypeId,
+  onSelectTypeId,
 }: CollectionsCategoryGridProps) {
   if (categories.length === 0) {
     return null;
@@ -23,11 +23,11 @@ export function CollectionsCategoryGrid({
   return (
     <section className="mb-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
       {categories.map((cat) => {
-        const isSelected = selectedType?.toLowerCase() === cat.title.toLowerCase();
+        const isSelected = selectedTypeId === cat.id;
         return (
           <button
             key={cat.id}
-            onClick={() => onSelectType(isSelected ? null : cat.title)}
+            onClick={() => onSelectTypeId(isSelected ? null : cat.id)}
             className={`group relative aspect-[3/4] overflow-hidden bg-surface-container-low dark:bg-surface-container-high flex items-end p-6 rounded-sm cursor-pointer text-left transition-all duration-300 border border-outline-variant/20 ${
               isSelected
                 ? "ring-2 ring-secondary dark:ring-primary shadow-lg scale-[1.02]"

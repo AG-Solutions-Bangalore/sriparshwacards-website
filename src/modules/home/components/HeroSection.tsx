@@ -52,21 +52,20 @@ export function HeroSection() {
   const current = slides[activeSlide];
 
   return (
-    <section className="relative w-full h-[80vh] min-h-[550px] flex items-center overflow-hidden bg-surface-container-low">
+    <section className="relative w-full h-[80vh] min-h-[550px] flex items-center overflow-hidden bg-surface-container-low group/hero">
       {/* Background Images */}
       {slides.map((slide, idx) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${
-            activeSlide === idx ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+          className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${activeSlide === idx ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
         >
           <img
             alt={slide.title}
-            className="w-full h-full object-cover object-center scale-105 transition-transform duration-10000 ease-out"
+            className="w-full h-full object-cover transform scale-105 transition-transform duration-7000 ease-out"
             src={slide.image}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20" />
         </div>
       ))}
 
@@ -81,30 +80,30 @@ export function HeroSection() {
             transition={{ duration: 0.35, ease: "easeOut" }}
             className="max-w-2xl space-y-4"
           >
-            <span className="font-label text-xs font-semibol dark:text-primary mb-2 block tracking-[0.2em] uppercase text-on-primary">
+            <span className="font-label text-xs font-semibold text-[#F5C77E] mb-2 block tracking-[0.2em] uppercase drop-shadow-sm">
               {current.tag}
             </span>
-            <h1 className="font-HelveticaNow text-3xl sm:text-5xl md:text-[56px] text-on-primary font-normal leading-[1.1] whitespace-pre-line drop-shadow-md">
+            <h1 className="font-HelveticaNow text-3xl sm:text-5xl md:text-[56px] text-white font-bold leading-[1.1] whitespace-pre-line drop-shadow-lg">
               {current.title}
             </h1>
-            <p className="font-HelveticaNow text-base md:text-lg text-surface-container-low max-w-xl mb-8 opacity-90 leading-relaxed font-light">
+            <p className="font-HelveticaNow text-base md:text-lg text-white/90 max-w-xl mb-8 leading-relaxed font-light drop-shadow-md">
               {current.subtitle}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <a
-                className="inline-block bg-secondary-container text-on-secondary-container font-label text-xs font-semibold px-8 py-4 rounded-full uppercase tracking-[0.1em] hover:bg-secondary hover:text-on-secondary transition-all duration-300 shadow-md whitespace-nowrap hover:scale-105 active:scale-95"
+                className="inline-block bg-[#E5A93C] hover:bg-[#d4962b] text-[#2C053B] font-label text-xs font-bold px-8 py-4 rounded-full uppercase tracking-[0.1em] transition-all duration-300 shadow-xl whitespace-nowrap hover:scale-105 active:scale-95"
                 href="#collections"
               >
                 Browse the Collection
               </a>
               <a
-                className="inline-flex items-center gap-2 border border-surface-container-low text-surface-container-low font-label text-xs font-semibold px-8 py-4 rounded-full uppercase tracking-[0.1em] hover:bg-surface-container-low hover:text-primary transition-all duration-300 whitespace-nowrap hover:scale-105 active:scale-95"
+                className="inline-flex items-center gap-2 border-2 border-white/80 text-white hover:bg-white hover:text-[#2C053B] font-label text-xs font-bold px-8 py-3.5 rounded-full uppercase tracking-[0.1em] backdrop-blur-sm bg-black/25 transition-all duration-300 whitespace-nowrap hover:scale-105 active:scale-95 shadow-md"
                 href={COMPANY_INFO.contact.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="material-symbols-outlined text-[16px]">chat</span>
+                <span className="material-symbols-outlined text-[18px] text-[#25D366]">chat</span>
                 <span>Order on WhatsApp</span>
               </a>
             </div>
@@ -112,24 +111,24 @@ export function HeroSection() {
         </AnimatePresence>
       </div>
 
-      {/* Navigation Controls */}
+      {/* Navigation Controls (Hidden by default, reveals on hover) */}
       <button
         onClick={() =>
           setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))
         }
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary z-20 hover:bg-secondary hover:text-on-secondary transition-colors cursor-pointer shadow-md hidden sm:flex active:scale-90"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-surface/85 dark:bg-surface-dim/85 backdrop-blur-sm rounded-full flex items-center justify-center text-primary z-20 hover:bg-secondary hover:text-on-secondary transition-all duration-300 cursor-pointer shadow-lg opacity-0 group-hover/hero:opacity-100 -translate-x-3 group-hover/hero:translate-x-0 pointer-events-none group-hover/hero:pointer-events-auto active:scale-90"
         aria-label="Previous Slide"
       >
-        <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+        <span className="material-symbols-outlined text-[22px]">chevron_left</span>
       </button>
       <button
         onClick={() =>
           setActiveSlide((prev) => (prev + 1) % slides.length)
         }
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary z-20 hover:bg-secondary hover:text-on-secondary transition-colors cursor-pointer shadow-md hidden sm:flex active:scale-90"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-surface/85 dark:bg-surface-dim/85 backdrop-blur-sm rounded-full flex items-center justify-center text-primary z-20 hover:bg-secondary hover:text-on-secondary transition-all duration-300 cursor-pointer shadow-lg opacity-0 group-hover/hero:opacity-100 translate-x-3 group-hover/hero:translate-x-0 pointer-events-none group-hover/hero:pointer-events-auto active:scale-90"
         aria-label="Next Slide"
       >
-        <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+        <span className="material-symbols-outlined text-[22px]">chevron_right</span>
       </button>
 
       {/* Slider Pagination Dots */}
@@ -138,11 +137,10 @@ export function HeroSection() {
           <button
             key={idx}
             onClick={() => setActiveSlide(idx)}
-            className={`transition-all duration-300 rounded-full cursor-pointer ${
-              activeSlide === idx
+            className={`transition-all duration-300 rounded-full cursor-pointer ${activeSlide === idx
                 ? "w-6 h-2 bg-secondary"
                 : "w-2 h-2 bg-surface-container-highest/80 hover:bg-surface-container-highest"
-            }`}
+              }`}
             aria-label={`Go to slide ${idx + 1}`}
           />
         ))}

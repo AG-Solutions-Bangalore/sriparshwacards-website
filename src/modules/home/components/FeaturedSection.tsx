@@ -1,12 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { RevealSection } from "../../../components/common/RevealSection";
-import { useActiveProductsWithImages } from "../../collections";
-import { COMPANY_INFO } from "../../../constants";
+import { useActiveProductsWithImages } from "../../collections/hooks";
+import type { ProductWithImage } from "../../collections/types";
+import { ProductCarouselTrack } from "./ProductCarouselTrack";
+import { ProductGalleryModal } from "../../../components/common/ProductGalleryModal";
 
 export function FeaturedSection() {
   const { products, isLoading, isError } = useActiveProductsWithImages();
+  const [selectedProduct, setSelectedProduct] = useState<ProductWithImage | null>(null);
+  const [initialImageIndex, setInitialImageIndex] = useState(0);
 
   const featuredProducts = useMemo(() => {
     if (!products.length) return [];
@@ -15,8 +18,13 @@ export function FeaturedSection() {
         pl.placements.toLowerCase().includes("featured"),
       ),
     );
-    return (featured.length > 0 ? featured : products).slice(0, 3);
+    return featured.length > 0 ? featured : products;
   }, [products]);
+
+  const handleOpenGallery = (product: ProductWithImage, initialIndex = 0) => {
+    setSelectedProduct(product);
+    setInitialImageIndex(initialIndex);
+  };
 
   if (!isLoading && !isError && featuredProducts.length === 0) {
     return null;
@@ -24,9 +32,9 @@ export function FeaturedSection() {
 
   return (
     <section className="py-24 bg-surface-container-low/50 dark:bg-surface-container-low/30 border-t border-outline-variant/15 overflow-hidden">
-      <div className="max-w-[1280px] mx-auto px-6 md:px-16">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-16">
         <RevealSection>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-outline-variant/20 pb-4 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b border-outline-variant/20 pb-4 gap-4">
             <div>
               <span className="font-label text-xs text-secondary dark:text-primary tracking-[0.2em] uppercase font-semibold block mb-2">
                 EXQUISITE SPOTLIGHT
@@ -55,7 +63,7 @@ export function FeaturedSection() {
         </RevealSection>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, idx) => (
               <div
                 key={idx}
@@ -68,74 +76,24 @@ export function FeaturedSection() {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredProducts.map((product, idx) => (
-              <RevealSection key={product.id} delay={idx * 0.12}>
-                <motion.div
-                  whileHover={{ y: -6 }}
-                  transition={{ duration: 0.25 }}
-                  className="group bg-surface dark:bg-surface-container border border-outline-variant/20 hover:border-primary/50 transition-all duration-300 flex flex-col h-full rounded-sm overflow-hidden shadow-xs hover:shadow-xl relative"
-                >
-                  {/* Featured Badge */}
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="bg-primary text-on-primary font-label text-[9px] uppercase tracking-widest px-3 py-1 rounded-full font-semibold shadow-sm">
-                      Featured
-                    </span>
-                  </div>
+        ) : isError || featuredProducts.length === 0 ? null : (
+          <RevealSection>
+            <ProductCarouselTrack
+              products={featuredProducts}
+              onOpenGallery={handleOpenGallery}
+              badgeType="featured"
+              getBadgeLabel={() => "Featured"}
+            />
+          </RevealSection>
+        )}
 
-                  <div className="relative aspect-[4/3] overflow-hidden bg-surface-container-lowest p-6 flex items-center justify-center">
-                    {product.imageUrl ? (
-                      <img
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        alt={product.product_name}
-                        src={product.imageUrl}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30">
-                        image_not_supported
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex flex-col justify-between flex-1 space-y-4">
-                    <div>
-                      <span className="font-label text-[10px] text-on-surface-variant block tracking-widest uppercase font-semibold">
-                        {product.product_made_of || product.card_type_names || "Luxury Card"}
-                      </span>
-                      <h3 className="font-NeuMachina text-xl text-on-surface font-semibold line-clamp-2 mt-1">
-                        {product.product_name}
-                      </h3>
-                      <p className="font-body text-xs text-on-surface-variant font-light mt-1">
-                        {product.occasion_names ? `Occasions: ${product.occasion_names}` : "Wedding & Occasion"}
-                      </p>
-                    </div>
-
-                    <div className="flex justify-between items-center pt-3 border-t border-outline-variant/15">
-                      <span className="font-label text-xs text-secondary dark:text-primary font-semibold uppercase tracking-wider">
-                        {product.category_names || "Exclusive Tier"}
-                      </span>
-                      <a
-                        href={`${COMPANY_INFO.contact.whatsappUrl}&text=Hello%20Sri%20Parshwa%20Cards%2C%20I%20am%20interested%20in%20the%20Featured%20design%20${encodeURIComponent(
-                          product.product_name,
-                        )}.`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-primary hover:text-secondary dark:hover:text-primary transition-colors text-xs font-label uppercase font-semibold tracking-wider"
-                        aria-label={`Enquire about ${product.product_name}`}
-                      >
-                        <span>Enquire</span>
-                        <span className="material-symbols-outlined text-[16px] inline-block transition-transform duration-300 group-hover:translate-x-1">
-                          arrow_forward
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                </motion.div>
-              </RevealSection>
-            ))}
-          </div>
+        {/* Lightbox / Gallery Modal */}
+        {selectedProduct && (
+          <ProductGalleryModal
+            product={selectedProduct}
+            initialImageIndex={initialImageIndex}
+            onClose={() => setSelectedProduct(null)}
+          />
         )}
       </div>
     </section>

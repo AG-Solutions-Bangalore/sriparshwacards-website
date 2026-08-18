@@ -68,8 +68,8 @@ function AnimatedCounter({ value }: AnimatedCounterProps) {
 
 export function StatisticsSection() {
   return (
-    <section className="py-12 border-b border-outline-variant/10 bg-surface dark:bg-surface-dim">
-      <div className="max-w-[1280px] mx-auto px-6 md:px-16 flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0 divide-y md:divide-y-0 md:divide-x divide-outline-variant/20">
+    <section className="py-10 sm:py-12 border-b border-outline-variant/10 bg-surface dark:bg-surface-dim">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-16 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:divide-x divide-outline-variant/20">
         {COMPANY_INFO.stats.map((stat, idx) => (
           <motion.div
             key={idx}
@@ -77,10 +77,10 @@ export function StatisticsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: idx * 0.1 }}
-            className="text-center flex-1 py-4 md:py-0 px-4"
+            className="text-center flex-1 py-2 sm:py-4 px-2 sm:px-4"
           >
             <AnimatedCounter value={stat.value} />
-            <p className="font-HelveticaNow text-[10px] text-on-surface-variant mt-2 uppercase tracking-widest font-semibold">
+            <p className="font-HelveticaNow text-[10px] sm:text-xs text-on-surface-variant mt-2 uppercase tracking-widest font-semibold">
               {stat.label}
             </p>
           </motion.div>

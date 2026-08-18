@@ -41,20 +41,23 @@ export interface ProductWithImage extends Product {
 
 export type ProductWithImages = ProductWithImage;
 
+export interface FilterOption {
+  id: number;
+  label: string;
+}
+
 export interface ProductFilters {
-  cardTypes: string[];
-  occasions: string[];
-  categories: string[];
-  category: string | null;
+  cardTypeIds: number[];
+  occasionIds: number[];
+  categoryIds: number[];
   searchQuery: string;
   sortBy: "featured" | "name_asc" | "name_desc";
 }
 
 export const DEFAULT_PRODUCT_FILTERS: ProductFilters = {
-  cardTypes: [],
-  occasions: [],
-  categories: [],
-  category: null,
+  cardTypeIds: [],
+  occasionIds: [],
+  categoryIds: [],
   searchQuery: "",
   sortBy: "featured",
 };
