@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ThemeToggle } from "./ThemeToggle";
 import { COMPANY_INFO } from "../../constants";
 import { useCompanyProfile } from "../../modules/home/hooks";
 
@@ -12,15 +11,16 @@ function FlipFooterLink({ to, children }: FlipFooterLinkProps) {
   return (
     <Link
       to={to}
-      className="group relative inline-flex flex-col  text-sm text-on-surface-variant hover:text-primary transition-colors duration-300 font-light whitespace-nowrap"
+      className="group relative inline-flex flex-col py-1 font-label text-xs uppercase tracking-[0.12em] whitespace-nowrap shrink-0 transition-colors duration-300 text-on-surface-variant hover:text-primary"
     >
+      {/* Text Roll / Flip Container */}
       <span className="relative inline-block overflow-hidden h-[20px] leading-[20px] whitespace-nowrap">
-        {/* Default Text (Rolls Up) */}
+        {/* Default Text */}
         <span className="block transition-transform duration-300 ease-out group-hover:-translate-y-full whitespace-nowrap">
           {children}
         </span>
-        {/* Hover Text (Rolls In from bottom) */}
-        <span className="block absolute top-0 left-0 transition-transform duration-300 ease-out translate-y-full group-hover:translate-y-0 text-primary font-normal whitespace-nowrap">
+        {/* Hover Text */}
+        <span className="block absolute top-0 left-0 transition-transform duration-300 ease-out translate-y-full group-hover:translate-y-0 text-primary font-bold whitespace-nowrap">
           {children}
         </span>
       </span>
@@ -51,22 +51,31 @@ function FlipFooterAnchor({ href, children }: { href: string; children: string }
 export function Footer() {
   const { company } = useCompanyProfile();
   const companyName = company?.company_name || COMPANY_INFO.name;
+  const companyAddress = company?.company_address || COMPANY_INFO.contact.address;
   const companyEmail = company?.company_support_email || company?.company_email || COMPANY_INFO.contact.email;
   const companyPhone = company?.company_mobile_no || COMPANY_INFO.contact.phonePrimary;
   const cleanPhone = companyPhone ? companyPhone.replace(/\D/g, "") : "";
   const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.startsWith("91") ? cleanPhone : `91${cleanPhone}`}` : COMPANY_INFO.contact.whatsappUrl;
 
   return (
-    <footer className="bg-surface-container-low font-HelveticaNow dark:bg-surface-container-lowest w-full py-24 border-t border-outline-variant/10">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 px-6 md:px-16 max-w-[1280px] mx-auto">
+    <footer className="bg-surface-container-low font-HelveticaNow dark:bg-surface-container-lowest w-full pt-24 pb-4 border-t border-outline-variant/10">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-12 px-6 md:px-16 max-w-[1280px] mx-auto">
         {/* Brand Column */}
-        <div className="col-span-1">
+        <div className="col-span-2 md:col-span-1">
           <h2 className=" text-2xl text-primary mb-6 font-semibold uppercase">
             {companyName}
           </h2>
           <p className="text-sm text-on-surface-variant mb-6 pr-4 leading-relaxed font-light">
             {COMPANY_INFO.subTagline}
           </p>
+          <div className="flex items-start gap-3 mb-6 pr-4">
+            <span className="material-symbols-outlined text-[18px] text-on-surface-variant shrink-0 mt-0.5">
+              location_on
+            </span>
+            <p className="text-sm text-on-surface-variant leading-relaxed font-light">
+              {companyAddress}
+            </p>
+          </div>
           <div className="flex items-center gap-3">
             {/* Email */}
             <a
@@ -113,7 +122,7 @@ export function Footer() {
           <h3 className="font-label text-xs text-primary mb-6 tracking-widest uppercase font-semibold">
             COLLECTIONS
           </h3>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-1 text-sm">
             {COMPANY_INFO.footerCollections.map((link, idx) => (
               <li key={idx}>
                 <FlipFooterLink to={link.to}>{link.label}</FlipFooterLink>
@@ -127,7 +136,7 @@ export function Footer() {
           <h3 className="font-label text-xs text-primary mb-6 tracking-widest uppercase font-semibold">
             QUICK LINKS
           </h3>
-          <ul className="space-y-3 text-sm">
+          <ul className="space-y-1 text-sm">
             {COMPANY_INFO.footerCompany.map((link, idx) => (
               <li key={idx}>
                 <FlipFooterLink to={link.to}>{link.label}</FlipFooterLink>
@@ -139,7 +148,17 @@ export function Footer() {
 
       {/* Copyright & Legal Links with Text Flip */}
       <div className="max-w-7xl mx-auto px-6 md:px-16 mt-16 pt-8 border-t border-outline-variant/10 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6 font-label text-xs text-on-surface-variant">
-        <p className="mb-2 md:mb-0">{COMPANY_INFO.copyright}</p>
+        <div className="flex items-center gap-1.5 mb-2 md:mb-0 flex-wrap justify-center md:justify-start">
+          <p>{COMPANY_INFO.copyright}</p>
+          <a
+            href="https://ag-solutions.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors underline underline-offset-2 decoration-on-surface-variant/30 hover:decoration-primary font-medium"
+          >
+            AG-Solutions
+          </a>
+        </div>
 
         <div className="flex gap-6">
           <FlipFooterAnchor href="#">Privacy Policy</FlipFooterAnchor>
@@ -147,13 +166,6 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Theme Toggle Component in Footer */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 pt-6 flex items-center justify-center md:justify-start gap-2">
-        <span className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">
-          Theme:
-        </span>
-        <ThemeToggle />
-      </div>
     </footer>
   );
 }

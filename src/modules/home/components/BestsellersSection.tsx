@@ -31,7 +31,7 @@ export function BestsellersSection() {
   }
 
   return (
-    <section className="py-24 max-w-[1440px] mx-auto px-6 md:px-16 overflow-hidden">
+    <section className="py-14 max-w-[1440px] mx-auto px-6 md:px-16 overflow-hidden">
       <RevealSection>
         <div className="flex justify-between items-end mb-12 border-b border-outline-variant/20 pb-4">
           <div>

@@ -7,7 +7,7 @@ export const COMPANY_INFO = {
   subTagline: "Crafting timeless narratives through exquisite stationery design. Your story, impeccably told.",
   heroDescription: "A curated collection of wedding cards — traditional, modern and luxurious — crafted to make the perfect first impression.",
   announcement: "3000+ DESIGNS FROM ₹7 • CUSTOM PRINTING & GOLD FOILING • PAN-INDIA & WORLDWIDE DELIVERY",
-  copyright: "© 2026 ELITE ATELIER • SRI PARSHWA CARDS. CRAFTED WITH ARTISTRY.",
+  copyright: "© 2026 ELITE ATELIER • SRI PARSHWA CARDS. CRAFTED WITH",
 
   contact: {
     phonePrimary: "+91 98765 43210",
@@ -20,7 +20,7 @@ export const COMPANY_INFO = {
     state: "Karnataka",
     pincode: "560001",
     country: "India",
-    studioHours: "Monday – Saturday: 10:00 AM – 8:00 PM IST",
+    studioHours: "Monday – Sunday: 10:00 AM – 8:00 PM IST",
   },
 
   social: {

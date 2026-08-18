@@ -22,7 +22,7 @@ export function HowItWorksSection() {
   };
 
   return (
-    <section className="py-24 bg-surface">
+    <section className="py-2 bg-surface">
       <div className="max-w-[1280px] mx-auto px-6 md:px-16">
         <div className="flex flex-col items-center mb-16 text-center">
           <span className="font-label text-xs text-secondary dark:text-primary mb-2 uppercase tracking-[0.2em] font-semibold">

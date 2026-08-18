@@ -123,7 +123,7 @@ export function EnquiryHeroForm() {
   return (
     <section className="max-w-[1440px] mx-auto px-6 sm:px-12 md:px-16 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
       {/* Left: Editorial Image */}
-      <div className="relative w-full h-[42rem] bg-surface-container-low dark:bg-surface-container-low overflow-hidden rounded-sm border border-outline-variant/15 dark:border-outline-variant/20 shadow-sm">
+      <div className="relative w-full h-72 sm:h-96 lg:h-[42rem] bg-surface-container-low dark:bg-surface-container-low overflow-hidden rounded-sm border border-outline-variant/15 dark:border-outline-variant/20 shadow-sm">
         <img
           className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
           alt="Bespoke luxury wedding invitation suite with wax seal and silk ribbon"
@@ -296,14 +296,11 @@ export function EnquiryHeroForm() {
 
             {/* Shadcn Luxury DatePicker for Wedding Date - Future Dates Only */}
             <div className="relative group">
-              <label className="absolute left-0 -top-4 font-label text-xs uppercase tracking-wider text-on-surface-variant pointer-events-none font-semibold">
-                Event / Wedding Date (Future Only)
-              </label>
               <DatePicker
                 date={form.date}
                 disablePastDates={true}
                 onDateChange={(d) => setForm((prev) => ({ ...prev, date: d }))}
-                placeholder="Select Future Date"
+                placeholder="Event / Wedding Date (Future Only)"
               />
             </div>
 

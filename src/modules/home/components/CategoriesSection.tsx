@@ -10,10 +10,11 @@ import {
 
 // Luxury curated fallback images per category if no specific image is provided
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  christian:
-    "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
   hindu:
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1200&q=80",
+  christian:
+    "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+
   muslim:
     "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80",
   sikh:
@@ -22,13 +23,20 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
     "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1200&q=80",
 };
 
+// Category display priority. Lower number = shown first (large feature card).
+const CATEGORY_PRIORITY: Record<string, number> = {
+  hindu: 0,
+  christian: 1,
+  muslim: 2,
+};
+
 export function CategoriesSection() {
   const { data: cardTypesData } = useActiveCardTypes();
   const { products } = useActiveProductsWithImages();
 
   const cardTypes = useMemo(() => {
     const list = cardTypesData?.data ?? [];
-    return list.map((ct) => {
+    const result = list.map((ct) => {
       // 1. Direct card_types_images from API
       const directImage = resolveCardTypeImageUrl(cardTypesData, ct);
 
@@ -59,6 +67,13 @@ export function CategoriesSection() {
         name: ct.card_types,
         imageUrl: directImage || match?.imageUrl || fallback,
       };
+    });
+
+    // Keep Hindu first, then Christian, Muslim, and any other types.
+    return result.sort((a, b) => {
+      const priorityA = CATEGORY_PRIORITY[a.name.toLowerCase()] ?? 99;
+      const priorityB = CATEGORY_PRIORITY[b.name.toLowerCase()] ?? 99;
+      return priorityA - priorityB;
     });
   }, [cardTypesData, products]);
 

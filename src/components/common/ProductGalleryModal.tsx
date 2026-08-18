@@ -64,7 +64,7 @@ export function ProductGalleryModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
+      <div className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-5 md:p-8">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -86,16 +86,16 @@ export function ProductGalleryModal({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-20 h-10 w-10 bg-surface/80 dark:bg-surface-container-high/80 hover:bg-surface dark:hover:bg-surface-container-highest backdrop-blur-sm rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors cursor-pointer shadow-md"
+            className="absolute top-3 right-3 z-30 h-8 w-8 sm:h-10 sm:w-10 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg"
             aria-label="Close modal"
           >
-            <span className="material-symbols-outlined text-[24px]">close</span>
+            <span className="material-symbols-outlined text-[18px] sm:text-[22px]">close</span>
           </button>
 
           {/* Left: Interactive Image Viewer & Gallery */}
-          <div className="relative flex-1 bg-surface-container-lowest flex flex-col items-center justify-center p-4 sm:p-8 min-h-[300px] sm:min-h-[420px] lg:min-h-[540px] select-none">
-            {/* Active Image with Transition */}
-            <div className="relative w-full h-full flex items-center justify-center max-h-[55vh] lg:max-h-[65vh]">
+          <div className="relative w-full lg:flex-1 bg-surface-container-lowest flex flex-col items-center justify-center p-4 sm:p-6 select-none shrink-0 border-b lg:border-b-0 lg:border-r border-outline-variant/20">
+            {/* Active Image Box */}
+            <div className="relative w-full h-48 sm:h-64 lg:h-[460px] flex items-center justify-center overflow-hidden">
               {currentImageUrl && !modalImageError ? (
                 <motion.img
                   key={currentImageUrl}
@@ -108,9 +108,9 @@ export function ProductGalleryModal({
                   className="max-h-full max-w-full object-contain rounded-xs shadow-sm"
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center text-on-surface-variant/40">
-                  <span className="material-symbols-outlined text-[64px]">image_not_supported</span>
-                  <span className="font-label text-sm uppercase tracking-wider font-semibold mt-2">No Image</span>
+                <div className="flex flex-col items-center justify-center text-on-surface-variant/40 py-6">
+                  <span className="material-symbols-outlined text-[48px] sm:text-[64px]">image_not_supported</span>
+                  <span className="font-label text-xs sm:text-sm uppercase tracking-wider font-semibold mt-2">No Image</span>
                 </div>
               )}
 
@@ -119,17 +119,17 @@ export function ProductGalleryModal({
                 <>
                   <button
                     onClick={handlePrev}
-                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-surface/90 dark:bg-surface-container-high/90 hover:bg-primary hover:text-on-primary text-on-surface rounded-full flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer"
+                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer"
                     aria-label="Previous image"
                   >
-                    <span className="material-symbols-outlined text-[22px]">arrow_back</span>
+                    <span className="material-symbols-outlined text-[18px] sm:text-[22px]">arrow_back</span>
                   </button>
                   <button
                     onClick={handleNext}
-                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-surface/90 dark:bg-surface-container-high/90 hover:bg-primary hover:text-on-primary text-on-surface rounded-full flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer"
+                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 bg-black/60 hover:bg-black text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 cursor-pointer"
                     aria-label="Next image"
                   >
-                    <span className="material-symbols-outlined text-[22px]">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[18px] sm:text-[22px]">arrow_forward</span>
                   </button>
                 </>
               )}
@@ -137,16 +137,16 @@ export function ProductGalleryModal({
 
             {/* Bottom Image Counter & Thumbnails */}
             {images.length > 1 && (
-              <div className="mt-4 flex flex-col items-center gap-2">
-                <span className="font-label text-[11px] text-on-surface-variant tracking-wider uppercase">
+              <div className="mt-3 flex flex-col items-center gap-1.5 w-full">
+                <span className="font-label text-[10px] sm:text-[11px] text-on-surface-variant tracking-wider uppercase">
                   Image {currentIndex + 1} of {images.length}
                 </span>
-                <div className="flex items-center gap-2 overflow-x-auto max-w-full py-1 px-2">
+                <div className="flex items-center gap-1.5 overflow-x-auto max-w-full py-1 px-1 custom-scrollbar">
                   {images.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setCurrentIndex(idx)}
-                      className={`relative h-12 w-12 sm:h-14 sm:w-14 rounded-xs overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                      className={`relative h-9 w-9 sm:h-12 sm:w-12 rounded-xs overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
                         idx === currentIndex
                           ? "border-primary shadow-sm scale-105"
                           : "border-outline-variant/30 opacity-60 hover:opacity-100"
@@ -161,41 +161,41 @@ export function ProductGalleryModal({
           </div>
 
           {/* Right: Product Details & WhatsApp CTA */}
-          <div className="w-full lg:w-96 p-6 sm:p-8 flex flex-col justify-between bg-surface dark:bg-surface-container border-t lg:border-t-0 lg:border-l border-outline-variant/20 overflow-y-auto">
-            <div className="space-y-4">
+          <div className="w-full lg:w-96 p-5 sm:p-6 lg:p-8 flex flex-col justify-between bg-surface dark:bg-surface-container overflow-y-auto flex-1 custom-scrollbar">
+            <div className="space-y-3 sm:space-y-4">
               <div>
                 <span className="font-label text-[10px] text-secondary dark:text-primary tracking-[0.2em] uppercase font-semibold block">
                   {product.category_names || "Bespoke Collection"}
                 </span>
-                <h3 className="font-NeuMachina text-2xl text-primary dark:text-on-surface font-semibold mt-1">
+                <h3 className="font-NeuMachina text-xl sm:text-2xl text-primary dark:text-on-surface font-semibold mt-1 leading-snug">
                   {product.product_name}
                 </h3>
               </div>
 
               {/* Product Specifications */}
-              <div className="space-y-2.5 pt-2 border-t border-outline-variant/15 text-xs font-body">
+              <div className="space-y-2 pt-2 border-t border-outline-variant/15 text-xs font-body">
                 {product.card_type_names && (
                   <div className="flex justify-between py-1 border-b border-outline-variant/10">
                     <span className="text-on-surface-variant font-medium">Card Type:</span>
-                    <span className="text-on-surface font-medium">{product.card_type_names}</span>
+                    <span className="text-on-surface font-medium text-right ml-2">{product.card_type_names}</span>
                   </div>
                 )}
                 {product.occasion_names && (
                   <div className="flex justify-between py-1 border-b border-outline-variant/10">
                     <span className="text-on-surface-variant font-medium">Occasion:</span>
-                    <span className="text-on-surface font-medium">{product.occasion_names}</span>
+                    <span className="text-on-surface font-medium text-right ml-2">{product.occasion_names}</span>
                   </div>
                 )}
                 {product.product_made_of && (
                   <div className="flex justify-between py-1 border-b border-outline-variant/10">
                     <span className="text-on-surface-variant font-medium">Material:</span>
-                    <span className="text-on-surface font-medium">{product.product_made_of}</span>
+                    <span className="text-on-surface font-medium text-right ml-2">{product.product_made_of}</span>
                   </div>
                 )}
                 {product.placements && product.placements.length > 0 && (
                   <div className="flex justify-between py-1 border-b border-outline-variant/10">
                     <span className="text-on-surface-variant font-medium">Tier:</span>
-                    <span className="text-secondary dark:text-primary font-semibold">
+                    <span className="text-secondary dark:text-primary font-semibold text-right ml-2">
                       {product.placements.map((p) => p.placements).join(", ")}
                     </span>
                   </div>
@@ -204,17 +204,17 @@ export function ProductGalleryModal({
             </div>
 
             {/* Actions */}
-            <div className="pt-6 space-y-3">
+            <div className="pt-4 sm:pt-6 space-y-2.5">
               <a
                 href={`${COMPANY_INFO.contact.whatsappUrl}&text=Hello%20Sri%20Parshwa%20Cards%2C%20I%20am%20interested%20in%20customizing%20the%20invitation%20${encodeURIComponent(
                   product.product_name,
                 )}.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-label text-xs uppercase tracking-widest py-3.5 px-6 rounded-full font-semibold transition-all shadow-md cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-label text-xs uppercase tracking-widest py-3 px-5 rounded-full font-semibold transition-all shadow-md cursor-pointer"
               >
                 <svg
-                  className="w-5 h-5 fill-current"
+                  className="w-4.5 h-4.5 fill-current shrink-0"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -223,7 +223,7 @@ export function ProductGalleryModal({
                 <span>Enquire on WhatsApp</span>
               </a>
 
-              <p className="text-[11px] text-center text-on-surface-variant font-light">
+              <p className="text-[10px] sm:text-[11px] text-center text-on-surface-variant font-light">
                 Custom samples, foil stamping & bespoke printing available.
               </p>
             </div>

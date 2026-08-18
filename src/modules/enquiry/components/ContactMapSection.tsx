@@ -8,19 +8,6 @@ export function ContactMapSection() {
   const companyEmail = company?.company_support_email || company?.company_email || COMPANY_INFO.contact.email;
   const companyName = company?.company_name || COMPANY_INFO.name;
 
-  // Exact Google Map URL from API
-  const directionsUrl =
-    company?.company_address_map_url ||
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      `${companyName}, ${companyAddress}`,
-    )}`;
-
-  // Extract coordinates from map url if available (e.g., @12.9207136,77.5897955)
-  const coordsMatch = company?.company_address_map_url?.match(/@([0-9.]+),([0-9.]+)/);
-  const embedQuery = coordsMatch
-    ? `${coordsMatch[1]},${coordsMatch[2]}`
-    : encodeURIComponent(`${companyName}, ${companyAddress}`);
-
   return (
     <section className="bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant/20 py-20">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-12 md:px-16">
@@ -92,32 +79,13 @@ export function ContactMapSection() {
                 </div>
               </div>
             </div>
-
-            <div>
-              <a
-                href={directionsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group/directions inline-flex items-center gap-2 bg-primary text-on-primary dark:bg-primary-container dark:text-on-primary-container font-label text-xs uppercase tracking-widest px-6 py-3.5 rounded-full font-semibold hover:bg-secondary dark:hover:bg-primary transition-all duration-300 shadow-md cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[18px]">directions</span>
-                <span className="relative inline-block overflow-hidden h-[18px] leading-[18px] whitespace-nowrap">
-                  <span className="block transition-transform duration-300 ease-out group-hover/directions:-translate-y-full whitespace-nowrap">
-                    Get Directions on Google Maps
-                  </span>
-                  <span className="block absolute top-0 left-0 transition-transform duration-300 ease-out translate-y-full group-hover/directions:translate-y-0 text-on-secondary dark:text-on-primary font-bold whitespace-nowrap">
-                    Get Directions on Google Maps
-                  </span>
-                </span>
-              </a>
-            </div>
           </div>
 
           {/* Right Interactive Google Map Embed */}
           <div className="lg:col-span-2 h-[420px] sm:h-[480px] w-full rounded-sm overflow-hidden border border-outline-variant/20 shadow-md relative">
             <iframe
               title={`${companyName} Studio Location`}
-              src={`https://maps.google.com/maps?q=${embedQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(companyName + ", " + companyAddress)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
               width="100%"
               height="100%"
               style={{ border: 0 }}

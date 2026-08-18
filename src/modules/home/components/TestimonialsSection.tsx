@@ -74,7 +74,7 @@ export function TestimonialsSection() {
               {duplicatedTestimonials.map((t, idx) => (
                 <div
                   key={`${t.id}-${idx}`}
-                  className="w-[320px] md:w-[380px] shrink-0 bg-surface p-8 border border-outline-variant/20 rounded-sm space-y-4 shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/50 transition-all duration-300 group flex flex-col justify-between"
+                  className="w-[270px] sm:w-[320px] md:w-[380px] shrink-0 bg-surface p-6 sm:p-8 border border-outline-variant/20 rounded-sm space-y-4 shadow-sm hover:-translate-y-2 hover:shadow-xl hover:border-primary/50 transition-all duration-300 group flex flex-col justify-between"
                 >
                   <div className="space-y-4">
                     {/* Star Rating & Quote Icon */}
